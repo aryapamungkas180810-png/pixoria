@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Form Pesan — Pixoria</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+      :root{
+        --purple:#6a3dd1; --pink:#ff7ab6; --accent:linear-gradient(90deg,var(--purple),var(--pink));
+        --green: #25D366; --green-hover: #128C7E;
+        --muted:#6b6b7a; --bg:#fbf9ff; --card:#fff; --radius:12px; --maxW:920px;
+        font-family:"Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      }
+      *{box-sizing:border-box}
+      body{margin:0;background:var(--bg);color:#222;-webkit-font-smoothing:antialiased;font-family:inherit}
+      header{padding:14px 20px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:18px}
+      header .logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+      header .logo-link img{height:46px;width:auto;border-radius:8px;display:block}
+      nav{display:flex;gap:12px;align-items:center}
+      nav a{color:var(--purple);padding:6px 8px;border-radius:8px;font-weight:600;text-decoration:none}
+      main{max-width:var(--maxW);margin:28px auto;padding:0 18px}
+      .card{background:var(--card);padding:20px;border-radius:var(--radius);box-shadow:0 12px 40px rgba(20,20,40,0.06)}
+      h2#title{margin:0 0 12px 0}
+      label{display:block;margin-top:12px;font-weight:600}
+      input,select,button,textarea{font-family:inherit}
+      input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6ee;margin-top:6px;box-sizing:border-box}
+      .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+      .small{font-size:13px;color:var(--muted)}
+      
+      /* Button Styles */
+      .btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700;transition:0.2s}
+      .btn-primary{background:var(--accent);color:#fff}
+      .btn-primary:hover{opacity:0.9}
+      .btn-muted{background:#eee;color:#222}
+      .btn-muted:hover{background:#ddd}
+
+      .items-table{width:100%;margin-top:12px;border-collapse:collapse}
+      .items-table th,.items-table td{padding:8px 6px;border-bottom:1px solid #f0eef8;text-align:left;vertical-align:middle}
+      .items-table th{font-weight:700;color:var(--muted)}
+      .text-right{text-align:right}
+      .summary{margin-top:12px;display:flex;gap:12px;flex-direction:column;align-items:flex-end}
+      .summary .line{width:280px;display:flex;justify-content:space-between;padding:6px 8px;background:transparent}
+      .trash{background:transparent;border:none;color:#c0392b;cursor:pointer;font-weight:700}
+      .note-inline{font-size:13px;color:var(--muted);margin-top:8px}
+      
+      .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;background:#111;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,0.25);display:none;z-index:2000}
+      @media (max-width:600px){ .row{flex-direction:column;align-items:stretch} .summary .line{width:100%} }
+    </style>
+  </head>
+
+  <body>
+    <header class="navbar">
+      <a href="index.html" class="logo-link" aria-label="Pixoria">
+        <img src="logo pixoria.jpg" alt="Pixoria" onerror="this.style.display='none'">
+        <div>
+          <strong style="font-size:18px">Pixoria</strong>
+          <div style="font-size:12px;color:var(--purple)">Kreator Konten Lokal</div>
+        </div>
+      </a>
+
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="packages.html">Paket</a>
+        <a href="about.html">Tentang</a>
+        <a href="order.html">Form Pesan</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="card">
+        <h2 id="title">Form Pesan</h2>
+
+        <form id="orderForm">
+          <label for="name">Nama</label>
+          <input id="name" name="name" type="text" required />
+
+          <label for="contact">Email / WhatsApp</label>
+          <input id="contact" name="contact" type="text" placeholder="0813xxxx / email@example.com" required />
+
+          <label for="brief">Brief / Catatan Editan</label>
+          <textarea id="brief" name="brief" rows="3" placeholder="Contoh: Gunakan tone warna warm, font minimalis, referensi gaya seperti akun X..."></textarea>
+
+          <h3 style="margin-top:16px">Order Items</h3>
+
+          <div class="row" style="align-items:center">
+            <div style="flex:1;min-width:180px">
+              <label for="packageSelect">Pilih Paket</label>
+              <select id="packageSelect" name="packageSelect">
+                <option value="">-- Pilih Paket --</option>
+                <option value="Foto Produk" data-price="350000">Foto Produk</option>
+                <option value="Video Konten" data-price="500000">Video Konten</option>
+                <option value="Desain Grafis" data-price="200000">Desain Grafis</option>
+                <option value="Copywriting" data-price="200000">Copywriting</option>
+                <option value="Brand Identity" data-price="700000">Brand Identity</option>
+                <option value="Custom" data-price="0">Custom</option>
+              </select>
+            </div>
+
+            <div style="width:110px">
+              <label for="itemQty">Jumlah</label>
+              <input id="itemQty" type="number" min="1" value="1" />
+            </div>
+
+            <div style="align-self:end">
+              <button type="button" id="addItemBtn" class="btn btn-primary">Tambah Item</button>
+            </div>
+          </div>
+
+          <table class="items-table" id="itemsTable" aria-label="Daftar item">
+            <thead>
+              <tr>
+                <th>Deskripsi</th>
+                <th style="width:70px">Qty</th>
+                <th style="width:140px">Harga/unit</th>
+                <th style="width:120px" class="text-right">Subtotal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="itemsBody"></tbody>
+          </table>
+
+          <div class="row" style="margin-top:10px;align-items:center">
+            <div style="flex:1;min-width:180px">
+              <label>Pajak</label>
+              <div class="small">Pajak otomatis: <strong id="taxPercentLabel">11%</strong> (PPN)</div>
+            </div>
+
+            <div style="flex:1;min-width:220px">
+              <label style="display:block;margin-top:12px">
+                <input id="useEscrow" name="useEscrow" type="checkbox" /> Gunakan Pembayaran Escrow
+              </label>
+            </div>
+          </div>
+
+          <div class="summary" id="summary">
+            <div class="line"><div class="small">Subtotal</div><div id="summarySubtotal">Rp 0</div></div>
+            <div class="line"><div class="small">Pajak (PPN)</div><div id="summaryTax">Rp 0</div></div>
+            <div class="line" style="font-weight:800"><div>Total</div><div id="summaryTotal">Rp 0</div></div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap">
+            <button id="downloadPdfBtn" class="btn btn-primary" type="submit">Kirim & Unduh Invoice (PDF)</button>
+            
+            <button type="button" class="btn btn-muted" onclick="resetForm()">Reset</button>
+          </div>
+
+          <div class="note-inline">Klik tombol di atas: Invoice PDF akan terunduh DAN WhatsApp akan terbuka otomatis.</div>
+        </form>
+      </div>
+    </main>
+
+    <div id="escrowModal" style="position:fixed;inset:0;display:none;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;z-index:1500" aria-hidden="true">
+      <div style="width:90%;max-width:520px;background:#fff;padding:22px;border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,0.25)" role="dialog" aria-modal="true" aria-labelledby="escrowTitle">
+        <h3 id="escrowTitle">Konfirmasi Pembayaran (Escrow)</h3>
+        <p>Dana akan ditahan sementara oleh Pixoria dan cair ke kreator setelah hasil disetujui.</p>
+
+        <label for="escrowPaymentMethod">Metode Pembayaran</label>
+        <select id="escrowPaymentMethod" style="width:100%;margin-top:6px;padding:8px">
+          <option value="Transfer Bank">Transfer Bank</option>
+          <option value="Link Pembayaran (QR / Card)">Link Pembayaran (QR / Card)</option>
+          <option value="Dompet Digital">Dompet Digital</option>
+        </select>
+
+        <div style="margin-top:10px">
+          <input type="checkbox" id="agreeEscrow" />
+          <label for="agreeEscrow">Saya setuju menggunakan sistem Escrow</label>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn btn-muted" onclick="closeEscrow()">Batal</button>
+          <button class="btn btn-primary" onclick="escrowProceed()">Lanjut & Unduh</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">Invoice sedang disiapkan...</div>
+
+    <script>
+      const AUTO_TAX_PERCENT = 11; // PPN
+      const ADMIN_WA_NUMBER = "6281234567890"; // GANTI DENGAN NOMOR WA ANDA
+
+      // helpers
+      function qp(key){ const u = new URLSearchParams(location.search); return u.get(key) || ''; }
+      function fmtIDRNumber(n){ return new Intl.NumberFormat('id-ID').format(Number(n||0)); }
+      function fmtIDR(n){ return 'Rp ' + fmtIDRNumber(n); }
+      function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+      function showToast(msg, ms=3000){
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.display = 'block';
+        clearTimeout(t._timer);
+        t._timer = setTimeout(()=> t.style.display = 'none', ms);
+      }
+
+      let items = [];
+
+      // DOM refs
+      const packageSelect = document.getElementById('packageSelect');
+      const itemQty = document.getElementById('itemQty');
+      const addItemBtn = document.getElementById('addItemBtn');
+      const itemsBody = document.getElementById('itemsBody');
+      const summarySubtotalEl = document.getElementById('summarySubtotal');
+      const summaryTaxEl = document.getElementById('summaryTax');
+      const summaryTotalEl = document.getElementById('summaryTotal');
+      const taxPercentLabel = document.getElementById('taxPercentLabel');
+
+      taxPercentLabel.innerText = AUTO_TAX_PERCENT + '%';
+
+      // Add Item
+      addItemBtn.addEventListener('click', ()=>{
+        const desc = packageSelect.value.trim();
+        if(!desc){ alert('Silakan pilih paket.'); return; }
+        const qty = Math.max(1, Number(itemQty.value) || 1);
+        const opt = packageSelect.selectedOptions[0];
+        let priceRaw = opt ? Number(opt.getAttribute('data-price') || 0) : 0;
+        if(priceRaw === 0){
+          if(!confirm('Harga paket ini bernilai 0. Lanjutkan menambahkan item dengan harga 0?')) return;
+        }
+        items.push({ desc, qty, price: priceRaw });
+        renderItems();
+        packageSelect.value = '';
+        itemQty.value = 1;
+      });
+
+      function renderItems(){
+        itemsBody.innerHTML = '';
+        let subtotal = 0;
+        items.forEach((it, idx)=>{
+          const row = document.createElement('tr');
+          const rowSubtotal = Number(it.price || 0) * Number(it.qty || 1);
+          subtotal += rowSubtotal;
+          row.innerHTML = `
+            <td>${escapeHtml(it.desc)}</td>
+            <td style="width:70px">${it.qty}</td>
+            <td style="width:140px">${fmtIDR(it.price)}</td>
+            <td style="width:120px" class="text-right">${fmtIDR(rowSubtotal)}</td>
+            <td style="width:40px" class="text-right"><button class="trash" data-idx="${idx}">✕</button></td>
+          `;
+          itemsBody.appendChild(row);
+        });
+        itemsBody.querySelectorAll('.trash').forEach(btn=>{
+          btn.addEventListener('click', ()=>{ const i = Number(btn.getAttribute('data-idx')); items.splice(i,1); renderItems(); });
+        });
+        updateSummary(subtotal);
+      }
+
+      function updateSummary(subtotal){
+        const taxAmount = Math.round(subtotal * (AUTO_TAX_PERCENT/100));
+        const total = subtotal + taxAmount;
+        summarySubtotalEl.innerText = fmtIDR(subtotal);
+        summaryTaxEl.innerText = fmtIDR(taxAmount);
+        summaryTotalEl.innerText = fmtIDR(total);
+      }
+
+      document.addEventListener('DOMContentLoaded', ()=>{
+        const pkg = decodeURIComponent(qp('pkg'));
+        const price = decodeURIComponent(qp('price'));
+        if(pkg){
+          const pnum = price ? Number(price) : 0;
+          items.push({ desc: pkg, qty: 1, price: pnum });
+          renderItems();
+        }
+        document.getElementById('orderForm').addEventListener('submit', function(e){
+          e.preventDefault();
+          submitOrder();
+        });
+      });
+
+      // ============================================================
+      // FUNGSI UTAMA: ORDER & PDF & WA
+      // ============================================================
+      
+      function submitOrder(){
+        const name = (document.getElementById('name').value || '').trim();
+        const contact = (document.getElementById('contact').value || '').trim();
+        const brief = (document.getElementById('brief').value || '').trim(); // Tangkap Brief
+        
+        if(!name || !contact){ alert('Nama & kontak harus diisi'); return; }
+        if(items.length === 0){ alert('Tambahkan minimal 1 item/paket'); return; }
+
+        const payload = {
+          id: 'INV-' + Date.now().toString(36).toUpperCase().slice(-6),
+          date: new Date().toISOString(),
+          customer: { name, contact },
+          items: items.slice(),
+          brief: brief, // Masukkan brief ke payload
+          tax: AUTO_TAX_PERCENT / 100,
+          notes: 'Terima kasih telah menggunakan jasa Pixoria.'
+        };
+
+        const useEscrow = document.getElementById('useEscrow').checked;
+        if(useEscrow){
+          escrowPayload = Object.assign({}, payload);
+          document.getElementById('escrowModal').style.display = 'flex';
+          document.getElementById('escrowModal').setAttribute('aria-hidden','false');
+        } else {
+          // Flow Normal: Generate PDF -> Lalu Buka WA
+          generateAndDownloadPDF(payload).then(() => {
+             sendToWhatsappAuto(payload); 
+          }).catch(err => { console.error(err); alert('Gagal membuat PDF'); });
+          
+          resetForm();
+        }
+      }
+
+      // LOGIC ESCROW
+      let escrowPayload = null;
+      function closeEscrow(){ document.getElementById('escrowModal').style.display = 'none'; document.getElementById('escrowModal').setAttribute('aria-hidden','true'); }
+
+      function escrowProceed(){
+        if(!document.getElementById('agreeEscrow').checked){ alert('Silakan centang persetujuan escrow.'); return; }
+        const method = document.getElementById('escrowPaymentMethod').value;
+        const placeholderLink = 'https://payment.pixoria.id/invoice-demo';
+
+        const finalInvoice = Object.assign({}, escrowPayload || {});
+        finalInvoice.escrow = { method, link: placeholderLink };
+        finalInvoice.notes = 'Metode Pembayaran: ' + method + ' (Escrow)';
+
+        // Flow Escrow: Generate PDF -> Lalu Buka WA
+        generateAndDownloadPDF(finalInvoice).then(() => {
+             sendToWhatsappAuto(finalInvoice);
+        }).catch(err => { console.error(err); alert('Gagal membuat PDF'); });
+
+        closeEscrow();
+        resetForm();
+      }
+
+      // FUNGSI PENGIRIM WA OTOMATIS
+      function sendToWhatsappAuto(data) {
+        showToast('Membuka WhatsApp...', 3000);
+        
+        let subtotal = 0;
+        let itemsText = "";
+        data.items.forEach((it, idx) => {
+           const t = it.qty * it.price;
+           subtotal += t;
+           itemsText += `${idx+1}. ${it.desc} (x${it.qty}) - ${fmtIDR(t)}\n`;
+        });
+        
+        const tax = Math.round(subtotal * data.tax);
+        const total = subtotal + tax;
+        const briefText = data.brief ? data.brief : "-";
+        
+        let msg = `*Halo Pixoria, Saya sudah mendownload Invoice ${data.id}*\n\n`;
+        msg += `Nama: ${data.customer.name}\n`;
+        msg += `Kontak: ${data.customer.contact}\n`;
+        msg += `\n*— DETAIL PESANAN —*\n${itemsText}`;
+        msg += `\n*— BRIEF / CATATAN —*\n${briefText}\n`;
+        msg += `\nTotal: ${fmtIDR(total)}\n`;
+        
+        if(data.escrow) {
+            msg += `\nMetode: ESCROW (${data.escrow.method})\n`;
+        } else {
+            msg += `\nMetode: Transfer Langsung\n`;
+        }
+        
+        msg += `\nMohon diproses segera. Terima kasih!`;
+
+        const url = `https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+        
+        // Delay sedikit agar tidak diblokir browser karena bersamaan dengan download
+        setTimeout(() => {
+            window.open(url, '_blank');
+        }, 800);
+      }
+
+      // PDF GENERATOR (Updated dengan Brief)
+      async function generateAndDownloadPDF(payload){
+        showToast('Menyiapkan PDF...');
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+
+        const colorPrimary = [106, 61, 209];
+        const colorText = [30, 30, 30];
+        const colorMuted = [100, 100, 110];
+        const colorLightBg = [245, 247, 250];
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 40;
+        const usableWidth = pageWidth - (margin * 2);
+        let y = 0;
+
+        const fmtIDRLocal = n => 'Rp ' + Number(n||0).toLocaleString('id-ID');
+
+        // Header
+        doc.setFillColor(...colorPrimary);
+        doc.rect(0, 0, pageWidth, 80, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont('helvetica','bold');
+        doc.text('Pixoria', margin, 50);
+        doc.setFontSize(10);
+        doc.setFont('helvetica','normal');
+        doc.text('Jasa Kreasi Konten Lokal', margin + 110, 50);
+        doc.setFontSize(28);
+        doc.text('INVOICE', pageWidth - margin, 50, { align: 'right' });
+
+        y = 120; 
+        const invId = payload.id;
+        const invDate = new Date(payload.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        // Info
+        doc.setTextColor(...colorMuted);
+        doc.setFontSize(9); doc.setFont('helvetica','bold');
+        doc.text('DITAGIHKAN KEPADA:', margin, y);
+        y += 15;
+        doc.setTextColor(...colorText);
+        doc.setFontSize(12); doc.text(payload.customer.name, margin, y);
+        y += 14;
+        doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.text(payload.customer.contact, margin, y);
+
+        const rightColX = pageWidth - margin - 150;
+        let rightY = 120;
+        doc.setTextColor(...colorMuted); doc.setFontSize(9); doc.setFont('helvetica','bold');
+        doc.text('NOMOR INVOICE:', rightColX, rightY);
+        doc.setTextColor(...colorText); doc.text(invId, pageWidth - margin, rightY, { align: 'right' });
+        rightY += 16;
+        doc.setTextColor(...colorMuted); doc.text('TANGGAL:', rightColX, rightY);
+        doc.setTextColor(...colorText); doc.text(invDate, pageWidth - margin, rightY, { align: 'right' });
+
+        y = Math.max(y, rightY) + 40;
+
+        // Table Header
+        const col1 = margin; const col2 = margin + 260; const col3 = margin + 320; const col4 = pageWidth - margin; 
+        doc.setFillColor(...colorLightBg);
+        doc.rect(margin, y - 10, usableWidth, 25, 'F'); 
+        doc.setTextColor(...colorPrimary); doc.setFontSize(9); doc.setFont('helvetica','bold');
+        doc.text('DESKRIPSI', col1 + 10, y + 6);
+        doc.text('QTY', col2, y + 6);
+        doc.text('HARGA', col3, y + 6);
+        doc.text('SUBTOTAL', col4 - 10, y + 6, { align: 'right' });
+        y += 30;
+
+        // Items
+        doc.setTextColor(...colorText); doc.setFontSize(10); doc.setFont('helvetica','normal');
+        let subtotal = 0;
+        for (let i=0; i<(payload.items||[]).length; i++){
+          const it = payload.items[i];
+          const qty = Number(it.qty); const price = Number(it.price); const rowSub = qty * price;
+          subtotal += rowSub;
+          const lines = doc.splitTextToSize(it.desc || '-', 240);
+          const rowHeight = (lines.length * 14) + 10;
+          if(y + rowHeight > pageHeight - 100){ doc.addPage(); y = 40; }
+          doc.text(lines, col1 + 10, y);
+          doc.text(String(qty), col2 + 5, y);
+          doc.text(fmtIDRLocal(price), col3, y);
+          doc.text(fmtIDRLocal(rowSub), col4 - 10, y, { align: 'right' });
+          doc.setDrawColor(230, 230, 230); doc.line(margin, y + rowHeight - 8, pageWidth - margin, y + rowHeight - 8);
+          y += rowHeight;
+        }
+
+        // Totals
+        y += 10;
+        const taxAmount = Math.round(subtotal * payload.tax); const total = subtotal + taxAmount;
+        const printSummaryLine = (label, value, isBold = false) => {
+          doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+          doc.setFontSize(isBold ? 12 : 10);
+          doc.setTextColor(...(isBold ? colorPrimary : colorText));
+          doc.text(label, col3, y); doc.text(value, col4 - 10, y, { align: 'right' });
+          y += 18;
+        };
+        printSummaryLine('Subtotal', fmtIDRLocal(subtotal));
+        printSummaryLine(`PPN (${(payload.tax*100)}%)`, fmtIDRLocal(taxAmount));
+        doc.setDrawColor(...colorPrimary); doc.setLineWidth(1); doc.line(col3, y - 10, pageWidth - margin, y - 10);
+        y += 5;
+        printSummaryLine('TOTAL', fmtIDRLocal(total), true);
+
+        // Brief / Notes Section
+        let noteY = y + 20;
+        if (noteY > pageHeight - 100) { doc.addPage(); noteY = 40; }
+
+        // Render Brief Box
+        if(payload.brief){
+           doc.setFillColor(255, 252, 235); // Kuning muda pudar untuk brief
+           doc.setDrawColor(240, 230, 200);
+           doc.rect(margin, noteY, usableWidth, 40, 'FD'); // Tinggi awal placeholder
+           
+           doc.setFontSize(9); doc.setTextColor(150, 100, 0); doc.setFont('helvetica','bold');
+           doc.text('BRIEF / CATATAN:', margin + 10, noteY + 15);
+           
+           doc.setTextColor(...colorText); doc.setFont('helvetica','normal');
+           const briefLines = doc.splitTextToSize(payload.brief, usableWidth - 20);
+           doc.text(briefLines, margin + 10, noteY + 28);
+           
+           // Adjust rect height based on text
+           const boxHeight = 28 + (briefLines.length * 10);
+           doc.rect(margin, noteY, usableWidth, boxHeight, 'S'); // Redraw border
+           noteY += boxHeight + 15;
+        }
+
+        // Escrow Info
+        if(payload.escrow){
+           doc.setFontSize(9); doc.setTextColor(...colorPrimary); doc.setFont('helvetica','bold');
+           doc.text(`METODE PEMBAYARAN: ESCROW (${payload.escrow.method})`, margin, noteY);
+           noteY += 12;
+        }
+
+        // Footer
+        const footerY = pageHeight - 30;
+        doc.setDrawColor(230, 230, 230); doc.line(margin, footerY - 15, pageWidth - margin, footerY - 15);
+        doc.setFontSize(8); doc.setTextColor(...colorMuted);
+        doc.text('Terima kasih telah mempercayakan konten Anda pada Pixoria.', margin, footerY);
+
+        doc.save(`Invoice-Pixoria-${invId}.pdf`);
+        showToast('PDF berhasil dibuat. Membuka WhatsApp...', 2000);
+      }
+
+      function resetForm(){ document.getElementById('orderForm').reset(); items = []; renderItems(); updateSummary(0); }
+      document.addEventListener('keydown',(e)=>{ if(e.key === 'Escape') closeEscrow(); });
+    </script>
+  </body>
+</html>

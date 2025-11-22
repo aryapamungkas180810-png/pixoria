@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Paket — Pixoria</title>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --purple: #6a3dd1;
+        --pink: #ff7ab6;
+        --accent: linear-gradient(90deg, var(--purple), var(--pink));
+        --wa-color: linear-gradient(90deg, var(--purple), var(--pink));
+        --muted: #6b6b7a;
+        --maxW: 1100px;
+        --gradient: linear-gradient(150deg, #f3ecff, #ffffff);
+        --btn-gradient: linear-gradient(90deg, var(--purple), var(--pink));
+        font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--gradient);
+        color: #222;
+        -webkit-font-smoothing: antialiased;
+        font-family: inherit;
+      }
+
+      /* NAVBAR */
+      header {
+        padding: 14px 18px;
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        gap: 18px;
+      }
+
+      header .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      header .brand img {
+        height: 46px;
+        width: auto;
+        border-radius: 8px;
+        object-fit: cover;
+        display: block;
+      }
+
+      nav {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      nav a {
+        text-decoration: none;
+        color: var(--purple);
+        font-weight: 600;
+        padding: 6px 8px;
+        border-radius: 8px;
+      }
+
+      .container {
+        max-width: var(--maxW);
+        margin: 28px auto;
+        padding: 0 18px;
+      }
+
+      /* TITLE */
+      h1 {
+        text-align: center;
+        font-size: 34px;
+        margin-bottom: 28px;
+        background: linear-gradient(90deg, var(--purple), var(--pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      /* GRID */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+      }
+
+      /* CARD */
+      .card {
+        background: #fff;
+        padding: 22px;
+        border-radius: 16px;
+        box-shadow: 0px 12px 40px rgba(0, 0, 0, 0.06);
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0px 18px 50px rgba(0, 0, 0, 0.08);
+      }
+
+      .price {
+        font-weight: 700;
+        color: var(--purple);
+        font-size: 22px;
+        margin-top: 8px;
+      }
+
+      button.choose {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: none;
+        background: var(--btn-gradient);
+        color: #fff;
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: 12px;
+        width: 100%;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+
+      button.choose:hover {
+        opacity: 0.92;
+        transform: scale(1.03);
+      }
+
+      .note {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 10px;
+      }
+
+      ul {
+        color: var(--muted);
+        text-align: left;
+        margin-top: 10px;
+        padding-left: 16px;
+      }
+
+      @media (max-width: 520px) {
+        h1 {
+          font-size: 28px;
+        }
+
+        header {
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="navbar">
+      <a class="brand" href="index.html" aria-label="Pixoria home">
+        <img src="logo pixoria.jpg" alt="Pixoria" onerror="this.style.display='none'" />
+        <div>
+          <strong style="font-size:18px">Pixoria</strong>
+          <div style="font-size:12px;color:var(--purple)">Kreator Konten Lokal</div>
+        </div>
+      </a>
+
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="packages.html">Paket</a>
+        <a href="about.html">Tentang</a>
+        <a href="order.html">Form Pesan</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <h1>Paket & Harga</h1>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Foto Produk</h3>
+          <div class="price">Rp 350.000</div>
+          <ul>
+            <li>10 foto produk</li>
+            <li>Editing & retouch</li>
+            <li>File siap upload marketplace</li>
+          </ul>
+          <button class="choose" onclick="location.href='order.html?pkg=Foto%20Produk&price=350000'">Pesan Paket</button>
+          <div class="note">1 revisi gratis</div>
+        </div>
+
+        <div class="card">
+          <h3>Video Konten</h3>
+          <div class="price">Rp 500.000</div>
+          <ul>
+            <li>Video 15–30 detik</li>
+            <li>Music & subtitle</li>
+            <li>3 revisi</li>
+          </ul>
+          <button class="choose" onclick="location.href='order.html?pkg=Video%20Konten&price=500000'">Pesan Paket</button>
+          <div class="note">Waktu pengerjaan: 3–7 hari</div>
+        </div>
+
+        <div class="card">
+          <h3>Desain Grafis</h3>
+          <div class="price">Rp 200.000</div>
+          <ul>
+            <li>5 konten desain</li>
+            <li>2× revisi</li>
+            <li>Format PNG & source file</li>
+          </ul>
+          <button class="choose" onclick="location.href='order.html?pkg=Desain%20Grafis&price=200000'">Pesan Paket</button>
+          <div class="note">Cocok untuk feed & story</div>
+        </div>
+
+        <div class="card">
+          <h3>Copywriting</h3>
+          <div class="price">Rp 200.000</div>
+          <ul>
+            <li>10 caption berkualitas</li>
+            <li>Riset kompetitor</li>
+            <li>2× revisi</li>
+          </ul>
+          <button class="choose" onclick="location.href='order.html?pkg=Copywriting&price=200000'">Pesan Paket</button>
+        </div>
+
+        <div class="card">
+          <h3>Brand Identity</h3>
+          <div class="price">Rp 700.000</div>
+          <ul>
+            <li>2 konsep logo</li>
+            <li>Font & palette warna</li>
+            <li>Mini brand guideline</li>
+          </ul>
+          <button class="choose" onclick="location.href='order.html?pkg=Brand%20Identity&price=700000'">Pesan Paket</button>
+        </div>
+      </div>
+
+      <p style="text-align:center;color:var(--muted);margin-top:24px">
+        Ingin paket custom? Hubungi kami via WhatsApp.
+      </p>
+    </main>
+  </body>
+</html>

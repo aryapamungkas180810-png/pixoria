@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Invoice — Pixoria</title>
+
+    <!-- html2pdf (DOM -> PDF) -->
+    <script src="https://unpkg.com/html2pdf.js@0.9.3/dist/html2pdf.bundle.min.js"></script>
+
+    <style>
+      :root {
+        --purple: #6a3dd1;
+        --pink: #ff7ab6;
+        --muted: #6b6b7a;
+        --maxW: 760px;
+        --accent: linear-gradient(90deg, var(--purple), var(--pink));
+        font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+          sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 20px;
+        background: #f7f6ff;
+        color: #222;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .sheet {
+        max-width: var(--maxW);
+        margin: 0 auto;
+        background: #fff;
+        padding: 22px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      }
+
+      .brand {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand h2 { margin: 0; color: var(--purple); }
+
+      .muted { color: var(--muted); font-size: 13px; }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+      }
+
+      th, td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      tfoot td { border-bottom: none; }
+
+      .total { font-weight: 800; color: var(--purple); }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .btn-download { background: var(--accent); color: #fff; }
+      .btn-wa { background: linear-gradient(90deg,#25D366,#128C7E); color: #fff; }
+
+      .notes { margin-top: 12px; color: var(--muted); font-size: 13px; }
+
+      @media (max-width:520px){
+        body { margin: 12px; }
+        .brand { flex-direction: column; align-items: flex-start; gap:8px; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="sheet" id="invoiceRoot" role="article" aria-label="Invoice">
+      <div class="brand">
+        <div>
+          <h2>Pixoria</h2>
+          <div class="muted">Jasa Kreasi Konten Lokal</div>
+        </div>
+
+        <div id="meta" style="text-align:right">
+          <div><strong id="invId">#INV-000</strong></div>
+          <div class="muted" id="invDate"></div>
+        </div>
+      </div>
+
+      <hr style="margin-top:14px;margin-bottom:10px;border:none;border-top:1px solid #f0eef8" />
+
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div class="muted">Dari</div>
+          <div><strong>Pixoria</strong></div>
+          <div class="muted">Palembang, Indonesia</div>
+          <div class="muted">hello@pixoria.id</div>
+        </div>
+
+        <div>
+          <div class="muted">Kepada</div>
+          <div id="custName"><strong>-</strong></div>
+          <div class="muted" id="custContact">-</div>
+        </div>
+      </div>
+
+      <table aria-label="Rincian invoice">
+        <thead>
+          <tr>
+            <th>Deskripsi</th>
+            <th style="width:90px">Qty</th>
+            <th style="width:160px">Harga</th>
+          </tr>
+        </thead>
+        <tbody id="lines"></tbody>
+        <tfoot>
+          <tr>
+            <td></td>
+            <td class="muted">Subtotal</td>
+            <td id="subTotal">Rp 0</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td class="muted">Pajak</td>
+            <td id="tax">Rp 0</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td class="total">Total</td>
+            <td id="grandTotal" class="total">Rp 0</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="notes" id="notes"></div>
+
+      <div class="actions">
+        <button id="downloadBtn" class="btn btn-download">Download PDF</button>
+        <button id="waBtn" class="btn btn-wa">Kirim ke WhatsApp</button>
+      </div>
+    </div>
+
+    <script>
+      // base64url decode
+      function base64UrlDecode(str) {
+        try {
+          str = str.replace(/-/g, "+").replace(/_/g, "/");
+          while (str.length % 4) str += "=";
+          return decodeURIComponent(escape(window.atob(str)));
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function fmtIDR(n) {
+        return "Rp " + Number(n || 0).toLocaleString("id-ID");
+      }
+
+      function genInvId() {
+        return "INV-" + Date.now().toString(36).toUpperCase().slice(-8);
+      }
+
+      function loadDataFromQueryOrStorage() {
+        const params = new URLSearchParams(location.search);
+        let data = null;
+        if (params.has("data")) {
+          const decoded = base64UrlDecode(params.get("data"));
+          if (decoded) {
+            try { data = JSON.parse(decoded); } catch (e) { data = null; }
+          }
+        }
+        if (!data) {
+          const raw = localStorage.getItem("lastInvoice");
+          if (raw) {
+            try { data = JSON.parse(raw); } catch (e) { data = null; }
+          }
+        }
+        return data;
+      }
+
+      function renderInvoice(data) {
+        const invId = data?.id || genInvId();
+        document.getElementById("invId").innerText = "#" + invId;
+        document.getElementById("invDate").innerText = data?.date ? new Date(data.date).toLocaleString() : new Date().toLocaleString();
+
+        document.getElementById("custName").innerHTML = "<strong>" + (data?.customer?.name || data?.customerName || "-") + "</strong>";
+        document.getElementById("custContact").innerText = data?.customer?.contact || data?.customerContact || "-";
+
+        const linesEl = document.getElementById("lines");
+        linesEl.innerHTML = "";
+
+        const items = data?.items || (data?.package ? [{ desc: data.package, qty: 1, price: Number(data.price || 0) }] : [{ desc: "Layanan", qty: 1, price: Number(data.price || 0) }]);
+        let subtotal = 0;
+        items.forEach(it => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${it.desc || "-"}</td><td>${it.qty || 1}</td><td>${fmtIDR(it.price || 0)}</td>`;
+          linesEl.appendChild(tr);
+          subtotal += (Number(it.price || 0) * (Number(it.qty || 1)));
+        });
+
+        const tax = Math.round(subtotal * (Number(data?.tax || 0)));
+        document.getElementById("subTotal").innerText = fmtIDR(subtotal);
+        document.getElementById("tax").innerText = fmtIDR(tax);
+        document.getElementById("grandTotal").innerText = fmtIDR(subtotal + tax);
+
+        document.getElementById("notes").innerText = data?.notes || (data?.brief ? "Brief: " + data.brief : "");
+        // save as fallback
+        try { localStorage.setItem("lastInvoice", JSON.stringify(Object.assign({ id: invId, date: data?.date || new Date().toISOString() }, data))); } catch (e) {}
+        return Object.assign({ id: invId }, data);
+      }
+
+      function sendToWa(invoice) {
+        const wa = "6281366534108"; // ganti bila perlu
+        const lines = [
+          "Halo Pixoria 👋",
+          "Saya ingin konfirmasi invoice.",
+          "Invoice: #" + (invoice.id || "-"),
+          "Nama: " + (invoice.customer?.name || invoice.customerName || "-"),
+          "Paket: " + (invoice.package || (invoice.items && invoice.items[0] && invoice.items[0].desc) || "-"),
+          "Total: " + document.getElementById("grandTotal").innerText,
+          "",
+          "Mohon instruksi pembayaran."
+        ];
+        const url = "https://wa.me/" + wa + "?text=" + encodeURIComponent(lines.join("\n"));
+        window.open(url, "_blank");
+      }
+
+      (function init(){
+        const params = new URLSearchParams(location.search);
+        const autoDownload = params.get("download") === "1";
+        const data = loadDataFromQueryOrStorage() || {
+          package: "Foto Produk",
+          price: 350000,
+          id: genInvId(),
+          date: new Date().toISOString(),
+          customer: { name: "Nama Pelanggan", contact: "0813xxxx" },
+          tax: 0.0,
+          notes: "Invoice demo — tidak terhubung ke backend"
+        };
+
+        const invoice = renderInvoice(data);
+
+        document.getElementById("downloadBtn").addEventListener("click", function(){
+          const element = document.getElementById("invoiceRoot");
+          const opt = {
+            margin: 10,
+            filename: (invoice.id || "invoice") + ".pdf",
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+          };
+          html2pdf().set(opt).from(element).save();
+        });
+
+        document.getElementById("waBtn").addEventListener("click", function(){
+          sendToWa(invoice);
+        });
+
+        // auto-download if requested
+        if (autoDownload) {
+          // small delay to ensure fonts/images render
+          setTimeout(() => document.getElementById("downloadBtn").click(), 650);
+        }
+      })();
+    </script>
+  </body>
+</html>
